@@ -29,3 +29,9 @@ Options:
   --pic-skip-frames N    how many frames to skip until picture snap [default: 15, env: PIC_SKIP_FRAMES]
   --help, -h             display this help and exit
 ```
+
+## TODOs
+
+- [ ] User whitelist
+- [ ] Picture caching
+- [ ] Send timestamps
