@@ -79,10 +79,9 @@ func (i *YCbCr) At(x, y int) color.Color {
 }
 
 func convertFrame(frame []byte, formatStr string, w, h int) (image.Image, error) {
-	rect := image.Rect(0, 0, int(w), int(h))
-
 	switch formatStr {
 	case "YUYV 4:2:2":
+		rect := image.Rect(0, 0, int(w), int(h))
 		buf := make([]byte, len(frame))
 		copy(buf, frame)
 		return &YCbCr{
