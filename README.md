@@ -32,5 +32,4 @@ Options:
 
 ## TODOs
 
-- [ ] Picture caching
 - [ ] Log to syslog

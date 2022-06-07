@@ -13,9 +13,10 @@ import (
 )
 
 type TelConfig struct {
-	BotAPIToken string  `arg:"required,env:BOT_API_TOKEN,--bot-api-token" help:"get it from https://t.me/Botfather" placeholder:"TOK"`
-	BotDebug    bool    `arg:"--bot-debug,env:BOT_DEBUG" default:"false" help:"run telegram bot in debug mode"`
-	BotUsers    []int64 `arg:"--bot-users,env:BOT_USERS" help:"whitelist of Telegram user ids allowed to use the bot" placeholder:"IDS,"`
+	BotAPIToken string        `arg:"required,env:BOT_API_TOKEN,--bot-api-token" help:"get it from https://t.me/Botfather" placeholder:"TOK"`
+	BotDebug    bool          `arg:"--bot-debug,env:BOT_DEBUG" default:"false" help:"run telegram bot in debug mode"`
+	BotUsers    []int64       `arg:"--bot-users,env:BOT_USERS" help:"whitelist of Telegram user ids allowed to use the bot" placeholder:"IDS,"`
+	PicCacheDur time.Duration `arg:"--pic-cache-dur,env:PIC_CACHE_DUR" help:"for how long to cache pictures" default:"10s" placeholder:"DUR"`
 }
 
 type Bot struct {
@@ -23,6 +24,9 @@ type Bot struct {
 	api    *tgbotapi.BotAPI
 
 	snapFn SnapFn
+
+	cachedIm image.Image
+	cachedAt time.Time
 }
 
 type SnapFn func() (image.Image, error)
@@ -40,6 +44,9 @@ func NewBot(config TelConfig, snapFn SnapFn) (*Bot, error) {
 		api:    api,
 
 		snapFn: snapFn,
+
+		cachedIm: nil,
+		cachedAt: time.Time{},
 	}, nil
 }
 
@@ -62,11 +69,12 @@ func (b *Bot) replyTo(msg *tgbotapi.Message, text string) {
 	}
 }
 
-func (b *Bot) sendPic(msg *tgbotapi.Message, ts time.Time, im image.Image) error {
+func (b *Bot) sendPic(msg *tgbotapi.Message, ts time.Time, im image.Image) {
 	buf := bytes.Buffer{}
 	err := jpeg.Encode(&buf, im, nil)
 	if err != nil {
-		return err
+		log.Err(err).Send()
+		b.replyTo(msg, fmt.Sprintf("Could not encode the picture: %s", err.Error()))
 	}
 
 	file := tgbotapi.FileBytes{
@@ -77,25 +85,34 @@ func (b *Bot) sendPic(msg *tgbotapi.Message, ts time.Time, im image.Image) error
 	sendPic := tgbotapi.NewPhoto(msg.Chat.ID, file)
 	sendPic.Caption = ts.Format(time.RFC1123)
 	_, err = b.api.Send(sendPic)
-	return err
+
+	if err != nil {
+		log.Err(err).Send()
+		b.replyTo(msg, fmt.Sprintf("Could not send the picture: %s", err.Error()))
+	}
+	log.Info().Interface("user", msg.From).Msg("sent picture")
 }
 
 func (b *Bot) handlePicCommand(msg *tgbotapi.Message) {
 	now := time.Now()
+	cacheAge := now.Sub(b.cachedAt)
+	if cacheAge <= b.config.PicCacheDur && b.cachedIm != nil {
+		log.Debug().Float64("cacheAgeS", cacheAge.Seconds()).Msg("picture is cached")
+		b.sendPic(msg, b.cachedAt, b.cachedIm)
+		return
+	}
+
+	log.Debug().Float64("cacheAgeS", cacheAge.Seconds()).Bool("isNil", b.cachedIm == nil).Msg("picture cache expired or nil")
 	im, err := b.snapFn()
 	if err != nil {
 		log.Err(err).Send()
 		b.replyTo(msg, fmt.Sprintf("Could not take the picture: %s", err.Error()))
 		return
 	}
+	b.cachedAt = now
+	b.cachedIm = im
 
-	err = b.sendPic(msg, now, im)
-	if err != nil {
-		log.Err(err).Send()
-		b.replyTo(msg, fmt.Sprintf("Could not send the picture: %s", err.Error()))
-		return
-	}
-	log.Info().Interface("user", msg.From).Msg("sent picture")
+	b.sendPic(msg, now, im)
 }
 
 func (b *Bot) RunForever() {
