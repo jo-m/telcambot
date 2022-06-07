@@ -13,8 +13,9 @@ import (
 )
 
 type TelConfig struct {
-	BotAPIToken string `arg:"required,env:BOT_API_TOKEN,--bot-api-token" help:"get it from https://t.me/Botfather" placeholder:"TOK"`
-	BotDebug    bool   `arg:"--bot-debug,env:BOT_DEBUG" default:"false" help:"run telegram bot in debug mode"`
+	BotAPIToken string  `arg:"required,env:BOT_API_TOKEN,--bot-api-token" help:"get it from https://t.me/Botfather" placeholder:"TOK"`
+	BotDebug    bool    `arg:"--bot-debug,env:BOT_DEBUG" default:"false" help:"run telegram bot in debug mode"`
+	BotUsers    []int64 `arg:"--bot-users,env:BOT_USERS" help:"whitelist of Telegram user ids allowed to use the bot" placeholder:"IDS,"`
 }
 
 type Bot struct {
@@ -40,6 +41,16 @@ func NewBot(config TelConfig, snapFn SnapFn) (*Bot, error) {
 
 		snapFn: snapFn,
 	}, nil
+}
+
+func (b *Bot) userAllowed(from tgbotapi.User) bool {
+	for _, adminID := range b.config.BotUsers {
+		if from.ID == adminID {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (b *Bot) replyTo(msg *tgbotapi.Message, text string) {
@@ -80,26 +91,37 @@ func (b *Bot) RunForever() {
 			continue
 		}
 
-		switch update.Message.Text {
+		msg := update.Message
+		if msg.From == nil || msg.Chat == nil {
+			log.Warn().Msg("from or char is nil, discarding")
+			continue
+		}
+
+		if !b.userAllowed(*msg.From) {
+			log.Warn().Interface("from", msg.From).Msg("user not allowed")
+			continue
+		}
+
+		switch msg.Text {
 		case "/pic":
 			im, err := b.snapFn()
 			if err != nil {
 				log.Err(err).Send()
-				b.replyTo(update.Message, fmt.Sprintf("Could not take the picture: %s", err.Error()))
+				b.replyTo(msg, fmt.Sprintf("Could not take the picture: %s", err.Error()))
 				continue
 			}
 
-			err = b.sendPic(update.Message, time.Now().Format(time.RFC3339Nano)+".jpg", im)
+			err = b.sendPic(msg, time.Now().Format(time.RFC3339Nano)+".jpg", im)
 			if err != nil {
 				log.Err(err).Send()
-				b.replyTo(update.Message, fmt.Sprintf("Could not send the picture: %s", err.Error()))
+				b.replyTo(msg, fmt.Sprintf("Could not send the picture: %s", err.Error()))
 				continue
 			}
-			log.Info().Interface("user", update.Message.From).Msg("sent picture")
+			log.Info().Interface("user", msg.From).Msg("sent picture")
 		case "/start":
-			b.replyTo(update.Message, "Use the /pic command to get a picture.")
+			b.replyTo(msg, "Use the /pic command to get a picture.")
 		default:
-			b.replyTo(update.Message, "I do not understand this. Use the /pic command to get a picture.")
+			b.replyTo(msg, "I do not understand this. Use the /pic command to get a picture.")
 		}
 	}
 }

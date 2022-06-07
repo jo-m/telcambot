@@ -32,6 +32,5 @@ Options:
 
 ## TODOs
 
-- [ ] User whitelist
 - [ ] Picture caching
 - [ ] Send timestamps
