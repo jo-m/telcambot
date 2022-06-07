@@ -62,7 +62,7 @@ func (b *Bot) replyTo(msg *tgbotapi.Message, text string) {
 	}
 }
 
-func (b *Bot) sendPic(msg *tgbotapi.Message, name string, im image.Image) error {
+func (b *Bot) sendPic(msg *tgbotapi.Message, ts time.Time, im image.Image) error {
 	buf := bytes.Buffer{}
 	err := jpeg.Encode(&buf, im, nil)
 	if err != nil {
@@ -70,16 +70,18 @@ func (b *Bot) sendPic(msg *tgbotapi.Message, name string, im image.Image) error 
 	}
 
 	file := tgbotapi.FileBytes{
-		Name:  name,
+		Name:  fmt.Sprintf("%s.jpeg", ts.Format(time.RFC3339)),
 		Bytes: buf.Bytes(),
 	}
 
 	sendPic := tgbotapi.NewPhoto(msg.Chat.ID, file)
+	sendPic.Caption = ts.Format(time.RFC1123)
 	_, err = b.api.Send(sendPic)
 	return err
 }
 
 func (b *Bot) handlePicCommand(msg *tgbotapi.Message) {
+	now := time.Now()
 	im, err := b.snapFn()
 	if err != nil {
 		log.Err(err).Send()
@@ -87,7 +89,7 @@ func (b *Bot) handlePicCommand(msg *tgbotapi.Message) {
 		return
 	}
 
-	err = b.sendPic(msg, time.Now().Format(time.RFC3339Nano)+".jpg", im)
+	err = b.sendPic(msg, now, im)
 	if err != nil {
 		log.Err(err).Send()
 		b.replyTo(msg, fmt.Sprintf("Could not send the picture: %s", err.Error()))

@@ -33,4 +33,4 @@ Options:
 ## TODOs
 
 - [ ] Picture caching
-- [ ] Send timestamps
+- [ ] Log to syslog
