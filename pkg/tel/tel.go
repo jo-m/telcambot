@@ -79,6 +79,23 @@ func (b *Bot) sendPic(msg *tgbotapi.Message, name string, im image.Image) error 
 	return err
 }
 
+func (b *Bot) handlePicCommand(msg *tgbotapi.Message) {
+	im, err := b.snapFn()
+	if err != nil {
+		log.Err(err).Send()
+		b.replyTo(msg, fmt.Sprintf("Could not take the picture: %s", err.Error()))
+		return
+	}
+
+	err = b.sendPic(msg, time.Now().Format(time.RFC3339Nano)+".jpg", im)
+	if err != nil {
+		log.Err(err).Send()
+		b.replyTo(msg, fmt.Sprintf("Could not send the picture: %s", err.Error()))
+		return
+	}
+	log.Info().Interface("user", msg.From).Msg("sent picture")
+}
+
 func (b *Bot) RunForever() {
 	update := tgbotapi.NewUpdate(0)
 	update.Timeout = 60
@@ -104,20 +121,7 @@ func (b *Bot) RunForever() {
 
 		switch msg.Text {
 		case "/pic":
-			im, err := b.snapFn()
-			if err != nil {
-				log.Err(err).Send()
-				b.replyTo(msg, fmt.Sprintf("Could not take the picture: %s", err.Error()))
-				continue
-			}
-
-			err = b.sendPic(msg, time.Now().Format(time.RFC3339Nano)+".jpg", im)
-			if err != nil {
-				log.Err(err).Send()
-				b.replyTo(msg, fmt.Sprintf("Could not send the picture: %s", err.Error()))
-				continue
-			}
-			log.Info().Interface("user", msg.From).Msg("sent picture")
+			b.handlePicCommand(msg)
 		case "/start":
 			b.replyTo(msg, "Use the /pic command to get a picture.")
 		default:
