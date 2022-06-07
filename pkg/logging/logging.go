@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"log/syslog"
 	"os"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 type LogConfig struct {
 	LogPretty bool   `arg:"--log-pretty,env:LOG_PRETTY" default:"false" help:"log pretty"`
 	LogLevel  string `arg:"--log-level,env:LOG_LEVEL" default:"info" help:"log level" placeholder:"LEVEL"`
+	LogSyslog bool   `arg:"--log-syslog,env:LOG_SYSLOG" default:"false" help:"log to syslog, disables pretty logging"`
 }
 
 func MustInit(config LogConfig) {
@@ -19,7 +21,13 @@ func MustInit(config LogConfig) {
 		log.Panic().Err(err).Send()
 	}
 
-	if config.LogPretty {
+	if config.LogSyslog {
+		syslogger, err := syslog.New(syslog.LOG_INFO|syslog.LOG_USER, "")
+		if err != nil {
+			log.Panic().Err(err).Send()
+		}
+		log.Logger = log.Output(zerolog.SyslogLevelWriter(syslogger))
+	} else if config.LogPretty {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 

@@ -138,6 +138,8 @@ func (b *Bot) RunForever() {
 			continue
 		}
 
+		log.Info().Interface("msg", msg).Msg("new request")
+
 		switch msg.Text {
 		case "/pic":
 			b.handlePicCommand(msg)
