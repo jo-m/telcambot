@@ -13,7 +13,7 @@ import (
 )
 
 type CamConfig struct {
-	PicDev string `arg:"env:PIC_DEV,--pic-dev" default:"/dev/video2" help:"camera video device file path" placeholder:"DEV"`
+	PicDev string `arg:"env:PIC_DEV,--pic-dev" default:"/dev/video3" help:"camera video device file path" placeholder:"DEV"`
 	// v4l2-ctl --list-formats-ext --device /dev/video2
 	PicFormat     string        `arg:"env:PIC_FORMAT,--pic-format" default:"Motion-JPEG" help:"camera preferred image format" placeholder:"STR"`
 	PicTimeout    time.Duration `arg:"env:PIC_TIMEOUT,--pic-timeout" default:"2s" help:"how long to give camera time to start" placeholder:"DUR"`
@@ -99,7 +99,7 @@ func convertFrame(frame []byte, formatStr string, w, h int) (image.Image, error)
 func Snap(config CamConfig) (image.Image, error) {
 	cam, err := webcam.Open(config.PicDev)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not open %s: %w", config.PicDev, err)
 	}
 	defer cam.Close()
 
