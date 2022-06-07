@@ -4,7 +4,7 @@ Telegram bot which sends pictures from a webcam upon request.
 
 A single command is supported: `/pic`.
 
-Works only on Linux (uses the video4linux API).
+Works only on Linux (uses the video4linux API). Tested on X86_64 and ARMv6 (Raspberry Pi Zero W).
 
 Written in Go, thanks go out to <https://github.com/blackjack/webcam> and <https://github.com/go-telegram-bot-api/telegram-bot-api>.
 
