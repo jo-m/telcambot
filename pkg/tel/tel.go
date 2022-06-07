@@ -95,6 +95,7 @@ func (b *Bot) RunForever() {
 				b.replyTo(update.Message, fmt.Sprintf("Could not send the picture: %s", err.Error()))
 				continue
 			}
+			log.Info().Interface("user", update.Message.From).Msg("sent picture")
 		case "/start":
 			b.replyTo(update.Message, "Use the /pic command to get a picture.")
 		default:
