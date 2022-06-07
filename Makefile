@@ -1,4 +1,4 @@
-.PHONY: run test
+.PHONY: run test build-raspi-zero
 
 SHELL := /bin/bash
 
@@ -8,7 +8,7 @@ run:
 test:
 	go test -v -count=1 ./...
 
-telcambot-pi-zero:
+build-raspi-zero:
 	env \
 		GOOS=linux \
 		GOARCH=arm \
