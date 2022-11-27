@@ -3,8 +3,8 @@ module github.com/jo-m/telecambot
 go 1.19
 
 require (
+	github.com/aamcrae/webcam v0.0.0-20210915060337-934acc13bdc3
 	github.com/alexflint/go-arg v1.4.3
-	github.com/blackjack/webcam v0.0.0-20220329180758-ba064708e165
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/rs/zerolog v1.28.0
 )
