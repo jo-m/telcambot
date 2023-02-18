@@ -21,7 +21,7 @@ type CamConfig struct {
 
 func chooseFormat(cam *webcam.Webcam, preferred string) (webcam.PixelFormat, string, *webcam.FrameSize, error) {
 	fmap := cam.GetSupportedFormats()
-	var format webcam.PixelFormat = 0
+	var format webcam.PixelFormat
 	var formatStr string
 	for f, s := range fmap {
 		format = f
