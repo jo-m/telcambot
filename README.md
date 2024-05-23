@@ -16,8 +16,8 @@ Written in Go, thanks go out to <https://github.com/go-telegram-bot-api/telegram
 3. Copy `.env.example` to `.env` and add your bot token.
 
 ```
-$ go run ./cmd/telcambot/ --help
-Usage: telcambot [--log-pretty] [--log-level LEVEL] --bot-api-token TOK [--bot-debug] [--bot-users IDS,] [--pic-cache-dur DUR] [--libcamera-camera-ix N] [--libcamera-w W] [--libcamera-h H]
+$ go run ./ --help
+Usage: telecambot [--log-pretty] [--log-level LEVEL] --bot-api-token TOK [--bot-debug] [--bot-users IDS,] [--pic-cache-dur DUR] [--libcamera-camera-ix N] [--libcamera-w W] [--libcamera-h H]
 
 Options:
   --log-pretty           log pretty [default: true, env: LOG_PRETTY]

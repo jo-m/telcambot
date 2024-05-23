@@ -3,7 +3,7 @@
 SHELL := /bin/bash
 
 run:
-	source .env && go run ./cmd/telcambot/ --log-pretty --log-level=debug --bot-debug=false
+	source .env && go run ./ --log-pretty --log-level=debug --bot-debug=false
 
 build-raspi-zero:
 	env \
@@ -11,7 +11,7 @@ build-raspi-zero:
 		GOARCH=arm \
 		GOARM=5 \
 		CGO_ENABLED=0 \
-	go build -o telcambot-pi-zero ./cmd/telcambot/
+	go build -o telcambot-pi-zero ./
 
 lint:
 	gofmt -l .; test -z "$$(gofmt -l .)"
