@@ -1,4 +1,4 @@
-module github.com/jo-m/telecambot
+module jo-m.ch/go/telcambot
 
 go 1.23.0
 

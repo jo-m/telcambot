@@ -4,10 +4,10 @@ import (
 	"image"
 
 	"github.com/alexflint/go-arg"
-	"github.com/jo-m/telecambot/pkg/libcamera"
-	"github.com/jo-m/telecambot/pkg/logging"
-	"github.com/jo-m/telecambot/pkg/tel"
 	"github.com/rs/zerolog/log"
+	"jo-m.ch/go/telcambot/pkg/libcamera"
+	"jo-m.ch/go/telcambot/pkg/logging"
+	"jo-m.ch/go/telcambot/pkg/tel"
 )
 
 type config struct {
