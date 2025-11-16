@@ -16,7 +16,7 @@ type TelConfig struct {
 	BotAPIToken string        `arg:"required,env:BOT_API_TOKEN,--bot-api-token" help:"get it from https://t.me/Botfather" placeholder:"TOK"`
 	BotDebug    bool          `arg:"--bot-debug,env:BOT_DEBUG" default:"false" help:"run telegram bot in debug mode"`
 	BotUsers    []int64       `arg:"--bot-users,env:BOT_USERS" help:"whitelist of Telegram user ids allowed to use the bot" placeholder:"IDS,"`
-	PicCacheDur time.Duration `arg:"--pic-cache-dur,env:PIC_CACHE_DUR" help:"for how long to cache pictures" default:"10s" placeholder:"DUR"`
+	PicCacheDur time.Duration `arg:"--pic-cache-dur,env:PIC_CACHE_DUR" help:"for how long to cache pictures" default:"60s" placeholder:"DUR"`
 }
 
 type Bot struct {
