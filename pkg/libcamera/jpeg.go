@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"sync"
 
+	"github.com/disintegration/imaging"
 	"github.com/rs/zerolog/log"
 )
 
@@ -17,6 +18,7 @@ type Config struct {
 	CameraIx int `arg:"env:LIBCAMERA_CAMERA_IX,--libcamera-camera-ix" default:"0" help:"libcamera camera number, see 'libcamera-jpeg --list-cameras'" placeholder:"N"`
 	Width    int `arg:"env:LIBCAMERA_W,--libcamera-w" default:"1920" help:"width" placeholder:"W"`
 	Height   int `arg:"env:LIBCAMERA_H,--libcamera-h" default:"1080" help:"height" placeholder:"H"`
+	Rotate   int `arg:"env:ROTATE,--rotate" default:"0" help:"rotate image by 0, 90, 180, 270 degree" placeholder:"R"`
 }
 
 func processErr(e io.Reader) {
@@ -75,6 +77,18 @@ func Snap(c Config) (image.Image, error) {
 	img, err := jpeg.Decode(&out)
 	if err != nil {
 		return nil, fmt.Errorf("decoding libcamera-jpeg output failed: %w", outErr)
+	}
+
+	switch c.Rotate {
+	case 0:
+	case 90:
+		img = imaging.Rotate90(img)
+	case 180:
+		img = imaging.Rotate180(img)
+	case 270:
+		img = imaging.Rotate270(img)
+	default:
+		log.Error().Int("rotate", c.Rotate).Msg("received invalid rotate arg, ignoring")
 	}
 
 	return img, nil
