@@ -1,6 +1,6 @@
 .PHONY: run test build-raspi-zero
 
-SHELL := /bin/bash
+SHELL := bash
 
 run:
 	source .env && go run ./ --log-pretty --log-level=debug --bot-debug=false
