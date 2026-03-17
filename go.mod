@@ -1,8 +1,6 @@
 module jo-m.ch/go/telcambot
 
-go 1.24.0
-
-toolchain go1.24.1
+go 1.25.0
 
 require (
 	github.com/alexflint/go-arg v1.6.1
@@ -15,6 +13,6 @@ require (
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	golang.org/x/image v0.36.0 // indirect
-	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/image v0.37.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
 )
